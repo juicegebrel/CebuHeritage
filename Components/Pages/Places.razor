@@ -1,0 +1,98 @@
+@page "/places"
+@rendermode InteractiveServer
+@inject PlaceService PlacesSvc
+
+<PageTitle>Explore Cebu's places | Cebu Heritage</PageTitle>
+
+<section class="bg-ink text-white">
+    <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <h1 class="text-4xl font-extrabold sm:text-5xl">Explore Cebu</h1>
+        <p class="mt-3 max-w-xl text-white/75">Choose a city or town to read its history, learn about its culture and plan where to visit and stay.</p>
+
+        <div class="mt-8 max-w-md">
+            <label for="search" class="sr-only">Search places</label>
+            <input id="search" type="search" placeholder="Search by name or what it is known for"
+                   @bind="search" @bind:event="oninput"
+                   class="w-full rounded-full border-0 px-5 py-3 text-ink placeholder:text-ink/50" />
+        </div>
+
+        <div class="mt-5 flex flex-wrap gap-2" role="group" aria-label="Filter by area">
+            @foreach (var option in regionOptions)
+            {
+                var isActive = option == selectedRegion;
+                <button type="button" @onclick="() => selectedRegion = option"
+                        aria-pressed="@(isActive ? "true" : "false")"
+                        class="@(isActive ? "rounded-full bg-saffron px-4 py-1.5 text-sm font-semibold text-ink" : "rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold text-white hover:bg-white/20")">
+                    @option
+                </button>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    @if (Filtered.Count == 0)
+    {
+        <div class="rounded-2xl bg-white p-10 text-center ring-1 ring-ink/10">
+            <p class="text-4xl">🔎</p>
+            <h2 class="mt-4 text-2xl font-bold">No places match your search</h2>
+            <p class="mt-2 text-ink/70">Try a different word or show every area.</p>
+            <button type="button" class="btn-primary mt-6" @onclick="Reset">Show all places</button>
+        </div>
+    }
+    else
+    {
+        <p class="mb-6 text-sm text-ink/60" aria-live="polite">Showing @Filtered.Count of @PlacesSvc.GetAll().Count places</p>
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach (var place in Filtered)
+            {
+                <PlaceCard Place="place" />
+            }
+        </div>
+    }
+</section>
+
+@code {
+    private const string AllAreas = "All areas";
+
+    [SupplyParameterFromQuery(Name = "region")]
+    public string? RegionQuery { get; set; }
+
+    private string search = "";
+    private string selectedRegion = AllAreas;
+    private List<string> regionOptions = new();
+
+    protected override void OnInitialized()
+    {
+        regionOptions = new List<string> { AllAreas };
+        regionOptions.AddRange(PlacesSvc.Regions);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(RegionQuery) && regionOptions.Contains(RegionQuery))
+        {
+            selectedRegion = RegionQuery;
+        }
+    }
+
+    private List<Place> Filtered => PlacesSvc.GetAll()
+        .Where(p => selectedRegion == AllAreas || p.Region == selectedRegion)
+        .Where(p => Matches(p, search))
+        .ToList();
+
+    private static bool Matches(Place p, string term)
+    {
+        if (string.IsNullOrWhiteSpace(term)) return true;
+        term = term.Trim();
+        return p.Name.Contains(term, StringComparison.OrdinalIgnoreCase)
+            || p.Tagline.Contains(term, StringComparison.OrdinalIgnoreCase)
+            || p.KnownFor.Any(k => k.Contains(term, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private void Reset()
+    {
+        search = "";
+        selectedRegion = AllAreas;
+    }
+}
