@@ -1,0 +1,182 @@
+@page "/places/{Slug}"
+@inject PlaceService Places
+
+@if (place is null)
+{
+    <PageTitle>Place not found | Cebu Heritage</PageTitle>
+    <div class="mx-auto max-w-2xl px-4 py-24 text-center">
+        <p class="text-6xl">🧭</p>
+        <h1 class="mt-6 text-4xl font-bold">We don't have that place yet</h1>
+        <p class="mt-3 text-ink/70">Pick another city or town from the list.</p>
+        <a href="/places" class="btn-primary mt-8">Explore places</a>
+    </div>
+}
+else
+{
+    <PageTitle>@place.Name | Cebu Heritage</PageTitle>
+
+    <section class="bg-gradient-to-br @place.Gradient text-white">
+        <div class="mx-auto max-w-6xl px-4 pb-14 pt-10 sm:px-6 sm:pb-20">
+            <a href="/places" class="text-sm font-semibold text-white/80 hover:text-white">Back to all places</a>
+            <div class="mt-8 flex items-start gap-5">
+                <span class="text-6xl drop-shadow sm:text-7xl" aria-hidden="true">@place.Icon</span>
+                <div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="chip">@place.Kind</span>
+                        <span class="chip">@place.Region</span>
+                    </div>
+                    <h1 class="mt-3 text-4xl font-extrabold sm:text-6xl">@place.Name</h1>
+                    <p class="mt-3 max-w-2xl text-lg text-white/90">@place.Tagline</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="sticky top-16 z-30 border-b border-ink/10 bg-white/95 backdrop-blur">
+        <nav class="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 py-2 text-sm font-semibold sm:px-6" aria-label="On this page">
+            <a href="#overview" class="whitespace-nowrap rounded-full px-4 py-1.5 hover:bg-sea-light">Overview</a>
+            <a href="#history" class="whitespace-nowrap rounded-full px-4 py-1.5 hover:bg-sea-light">History</a>
+            <a href="#culture" class="whitespace-nowrap rounded-full px-4 py-1.5 hover:bg-sea-light">Culture</a>
+            <a href="#visit" class="whitespace-nowrap rounded-full px-4 py-1.5 hover:bg-sea-light">Where to visit</a>
+            <a href="#stay" class="whitespace-nowrap rounded-full px-4 py-1.5 hover:bg-sea-light">Where to stay</a>
+        </nav>
+    </div>
+
+    <div class="mx-auto max-w-6xl space-y-20 px-4 py-14 sm:px-6">
+
+        @* Overview *@
+        <section id="overview" class="grid gap-8 lg:grid-cols-3">
+            <div class="lg:col-span-2">
+                <h2 class="section-title">Overview</h2>
+                <p class="mt-4 max-w-prose text-lg leading-relaxed text-ink/85">@place.Overview</p>
+
+                <div class="mt-6 flex flex-wrap gap-2">
+                    @foreach (var item in place.KnownFor)
+                    {
+                        <span class="chip-dark">@item</span>
+                    }
+                </div>
+            </div>
+
+            <aside class="space-y-4">
+                <div class="rounded-2xl bg-sea-light p-5">
+                    <h3 class="font-bold text-sea-dark">Getting there</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-ink/80">@place.GettingThere</p>
+                </div>
+                @if (place.FestivalName is not null)
+                {
+                    <div class="rounded-2xl bg-saffron/30 p-5">
+                        <h3 class="font-bold">@place.FestivalName</h3>
+                        <p class="mt-2 text-sm leading-relaxed text-ink/80">@place.FestivalNote</p>
+                    </div>
+                }
+            </aside>
+        </section>
+
+        @* History *@
+        <section id="history">
+            <h2 class="section-title">History</h2>
+            <ol class="mt-8 max-w-3xl space-y-8 border-l-4 border-sinulog pl-6">
+                @foreach (var entry in place.History)
+                {
+                    <li class="relative">
+                        <span class="absolute -left-[2.15rem] top-1.5 h-4 w-4 rounded-full border-4 border-foam bg-sinulog" aria-hidden="true"></span>
+                        <p class="font-display text-xl font-bold text-sinulog">@entry.Year</p>
+                        <p class="mt-1 leading-relaxed text-ink/85">@entry.Text</p>
+                    </li>
+                }
+            </ol>
+        </section>
+
+        @* Culture *@
+        <section id="culture">
+            <h2 class="section-title">Culture and traditions</h2>
+            <div class="mt-8 grid gap-5 sm:grid-cols-2">
+                @foreach (var item in place.Culture)
+                {
+                    <article class="rounded-2xl bg-white p-6 ring-1 ring-ink/10">
+                        <p class="text-3xl" aria-hidden="true">@item.Icon</p>
+                        <h3 class="mt-3 text-lg font-bold">@item.Title</h3>
+                        <p class="mt-2 text-sm leading-relaxed text-ink/80">@item.Text</p>
+                    </article>
+                }
+            </div>
+        </section>
+
+        @* Where to visit *@
+        <section id="visit">
+            <h2 class="section-title">Where to visit</h2>
+            <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach (var spot in place.Attractions)
+                {
+                    <article class="flex flex-col rounded-2xl bg-white p-6 ring-1 ring-ink/10">
+                        <div class="flex items-center justify-between">
+                            <span class="text-3xl" aria-hidden="true">@spot.Icon</span>
+                            <span class="chip-dark">@spot.Category</span>
+                        </div>
+                        <h3 class="mt-4 text-lg font-bold">@spot.Name</h3>
+                        <p class="mt-2 text-sm leading-relaxed text-ink/80">@spot.Description</p>
+                    </article>
+                }
+            </div>
+        </section>
+
+        @* Where to stay *@
+        <section id="stay">
+            <h2 class="section-title">Where to stay</h2>
+            @if (place.Stays.Count > 0)
+            {
+                <ul class="mt-8 grid gap-5 md:grid-cols-2">
+                    @foreach (var stay in place.Stays)
+                    {
+                        <li class="rounded-2xl border-l-8 border-sea bg-white p-6 ring-1 ring-ink/10">
+                            <h3 class="text-lg font-bold">@stay.Name</h3>
+                            <p class="mt-1 text-sm font-semibold text-sea-dark">@stay.Style</p>
+                            <p class="mt-3 text-sm leading-relaxed text-ink/80">@stay.Description</p>
+                        </li>
+                    }
+                </ul>
+            }
+            @if (!string.IsNullOrWhiteSpace(place.StayNote))
+            {
+                <p class="mt-6 max-w-prose rounded-2xl bg-saffron/30 p-5 text-sm leading-relaxed text-ink/85">@place.StayNote</p>
+            }
+            <p class="mt-6 text-xs text-ink/55">Names are examples to start your search. Check current availability, prices and reviews before booking.</p>
+        </section>
+
+        @* Previous / next *@
+        <nav class="grid gap-4 border-t border-ink/10 pt-10 sm:grid-cols-2" aria-label="More places">
+            @if (neighbors.Previous is not null)
+            {
+                <a href="/places/@neighbors.Previous.Slug" class="rounded-2xl bg-white p-5 ring-1 ring-ink/10 hover:ring-sinulog">
+                    <p class="text-xs text-ink/55">Previous place</p>
+                    <p class="mt-1 text-lg font-bold">@neighbors.Previous.Icon @neighbors.Previous.Name</p>
+                </a>
+            }
+            else
+            {
+                <span></span>
+            }
+            @if (neighbors.Next is not null)
+            {
+                <a href="/places/@neighbors.Next.Slug" class="rounded-2xl bg-white p-5 text-right ring-1 ring-ink/10 hover:ring-sinulog">
+                    <p class="text-xs text-ink/55">Next place</p>
+                    <p class="mt-1 text-lg font-bold">@neighbors.Next.Name @neighbors.Next.Icon</p>
+                </a>
+            }
+        </nav>
+    </div>
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = "";
+
+    private Place? place;
+    private (Place? Previous, Place? Next) neighbors;
+
+    protected override void OnParametersSet()
+    {
+        place = Places.GetBySlug(Slug);
+        neighbors = place is null ? (null, null) : Places.GetNeighbors(place.Slug);
+    }
+}
