@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 8rem;
+  }
+  body {
+    @apply bg-foam text-ink font-body antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-sinulog ring-offset-2;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition: none !important; }
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold transition-colors;
+  }
+  .btn-primary {
+    @apply btn bg-sinulog text-white hover:bg-pink-800;
+  }
+  .btn-light {
+    @apply btn bg-white text-ink hover:bg-saffron;
+  }
+  .chip {
+    @apply inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm;
+  }
+  .chip-dark {
+    @apply inline-flex items-center rounded-full bg-sea-light px-3 py-1 text-xs font-medium text-sea-dark;
+  }
+  .section-title {
+    @apply text-3xl font-bold sm:text-4xl;
+  }
+}
+
+/* Blazor's built-in error banner */
+#blazor-error-ui {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 0.75rem 1.25rem;
+  background: #fef3c7;
+  color: #14213D;
+  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.2);
+}
+#blazor-error-ui .reload { margin-left: 0.5rem; text-decoration: underline; }
+#blazor-error-ui .dismiss { cursor: pointer; position: absolute; right: 0.75rem; top: 0.5rem; }

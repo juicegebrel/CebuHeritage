@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RollForward>Major</RollForward>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="node_modules/**" />
+    <Content Remove="node_modules/**" />
+    <None Remove="node_modules/**" />
+  </ItemGroup>
+
+  <!-- Builds Tailwind CSS before every build. Pass -p:SkipTailwind=true to skip. -->
+  <Target Name="TailwindBuild" BeforeTargets="BeforeBuild" Condition="'$(SkipTailwind)' != 'true' And Exists('package.json')">
+    <Exec Command="npm install" Condition="!Exists('node_modules')" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="npm run build:css" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+
+</Project>
