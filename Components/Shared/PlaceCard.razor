@@ -1,0 +1,23 @@
+<a href="/places/@Place.Slug"
+   class="group flex h-full flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-ink/10 transition-shadow hover:shadow-xl">
+    <div class="flex h-36 items-end justify-between bg-gradient-to-br @Place.Gradient p-5">
+        <span class="text-5xl drop-shadow" aria-hidden="true">@Place.Icon</span>
+        <span class="chip">@Place.Kind</span>
+    </div>
+    <div class="flex flex-1 flex-col p-5">
+        <h3 class="text-xl font-bold group-hover:text-sinulog">@Place.Name</h3>
+        <p class="mt-1 text-sm text-ink/60">@Place.Region</p>
+        <p class="mt-3 flex-1 text-sm leading-relaxed text-ink/80">@Place.Tagline</p>
+        <p class="mt-4 text-sm font-semibold text-sea-dark">
+            @Place.Attractions.Count places to visit
+            @if (Place.Stays.Count > 0)
+            {
+                <span> and @Place.Stays.Count to stay</span>
+            }
+        </p>
+    </div>
+</a>
+
+@code {
+    [Parameter, EditorRequired] public Place Place { get; set; } = default!;
+}

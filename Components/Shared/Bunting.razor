@@ -1,0 +1,16 @@
+@* Banderitas: the paper flags strung across Cebu streets at fiesta time. *@
+<div class="flex w-full overflow-hidden" aria-hidden="true">
+    @for (var i = 0; i < Count; i++)
+    {
+        <div class="@($"h-7 min-w-[2rem] flex-1 [clip-path:polygon(0_0,100%_0,50%_100%)] {Colors[i % Colors.Length]}")"></div>
+    }
+</div>
+
+@code {
+    [Parameter] public int Count { get; set; } = 48;
+
+    private static readonly string[] Colors =
+    {
+        "bg-sinulog", "bg-saffron", "bg-sea", "bg-white", "bg-orange-500"
+    };
+}
