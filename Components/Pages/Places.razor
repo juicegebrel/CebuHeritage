@@ -1,5 +1,4 @@
 @page "/places"
-@rendermode InteractiveServer
 @inject PlaceService PlacesSvc
 
 <PageTitle>Explore Cebu's places | Cebu Heritage</PageTitle>
@@ -9,42 +8,47 @@
         <h1 class="text-4xl font-extrabold sm:text-5xl">Explore Cebu</h1>
         <p class="mt-3 max-w-xl text-white/75">Choose a city or town to read its history, learn about its culture and plan where to visit and stay.</p>
 
-        <div class="mt-8 max-w-md">
+        <form method="get" action="/places" role="search" class="mt-8 flex max-w-md gap-2">
+            @if (activeRegion != AllAreas)
+            {
+                <input type="hidden" name="region" value="@activeRegion" />
+            }
             <label for="search" class="sr-only">Search places</label>
-            <input id="search" type="search" placeholder="Search by name or what it is known for"
-                   @bind="search" @bind:event="oninput"
-                   class="w-full rounded-full border-0 px-5 py-3 text-ink placeholder:text-ink/50" />
-        </div>
+            <input id="search" name="q" type="search" value="@Query"
+                   placeholder="Search by name or what it is known for"
+                   class="min-w-0 flex-1 rounded-full border-0 px-5 py-3 text-ink placeholder:text-ink/50" />
+            <button type="submit" class="btn-light">Search</button>
+        </form>
 
-        <div class="mt-5 flex flex-wrap gap-2" role="group" aria-label="Filter by area">
+        <nav class="mt-5 flex flex-wrap gap-2" aria-label="Filter by area">
             @foreach (var option in regionOptions)
             {
-                var isActive = option == selectedRegion;
-                <button type="button" @onclick="() => selectedRegion = option"
-                        aria-pressed="@(isActive ? "true" : "false")"
-                        class="@(isActive ? "rounded-full bg-saffron px-4 py-1.5 text-sm font-semibold text-ink" : "rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold text-white hover:bg-white/20")">
+                var isActive = option == activeRegion;
+                <a href="@UrlFor(option)"
+                   aria-current="@(isActive ? "true" : null)"
+                   class="@(isActive ? "rounded-full bg-saffron px-4 py-1.5 text-sm font-semibold text-ink" : "rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold text-white hover:bg-white/20")">
                     @option
-                </button>
+                </a>
             }
-        </div>
+        </nav>
     </div>
 </section>
 
 <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-    @if (Filtered.Count == 0)
+    @if (results.Count == 0)
     {
         <div class="rounded-2xl bg-white p-10 text-center ring-1 ring-ink/10">
             <p class="text-4xl">🔎</p>
             <h2 class="mt-4 text-2xl font-bold">No places match your search</h2>
             <p class="mt-2 text-ink/70">Try a different word or show every area.</p>
-            <button type="button" class="btn-primary mt-6" @onclick="Reset">Show all places</button>
+            <a href="/places" class="btn-primary mt-6">Show all places</a>
         </div>
     }
     else
     {
-        <p class="mb-6 text-sm text-ink/60" aria-live="polite">Showing @Filtered.Count of @PlacesSvc.GetAll().Count places</p>
+        <p class="mb-6 text-sm text-ink/60">Showing @results.Count of @PlacesSvc.GetAll().Count places</p>
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            @foreach (var place in Filtered)
+            @foreach (var place in results)
             {
                 <PlaceCard Place="place" />
             }
@@ -56,43 +60,44 @@
     private const string AllAreas = "All areas";
 
     [SupplyParameterFromQuery(Name = "region")]
-    public string? RegionQuery { get; set; }
+    public string? Region { get; set; }
 
-    private string search = "";
-    private string selectedRegion = AllAreas;
+    [SupplyParameterFromQuery(Name = "q")]
+    public string? Query { get; set; }
+
     private List<string> regionOptions = new();
-
-    protected override void OnInitialized()
-    {
-        regionOptions = new List<string> { AllAreas };
-        regionOptions.AddRange(PlacesSvc.Regions);
-    }
+    private string activeRegion = AllAreas;
+    private List<Place> results = new();
 
     protected override void OnParametersSet()
     {
-        if (!string.IsNullOrWhiteSpace(RegionQuery) && regionOptions.Contains(RegionQuery))
-        {
-            selectedRegion = RegionQuery;
-        }
+        regionOptions = new List<string> { AllAreas };
+        regionOptions.AddRange(PlacesSvc.Regions);
+
+        activeRegion = !string.IsNullOrWhiteSpace(Region) && regionOptions.Contains(Region)
+            ? Region
+            : AllAreas;
+
+        results = PlacesSvc.GetAll()
+            .Where(p => activeRegion == AllAreas || p.Region == activeRegion)
+            .Where(p => Matches(p, Query))
+            .ToList();
     }
 
-    private List<Place> Filtered => PlacesSvc.GetAll()
-        .Where(p => selectedRegion == AllAreas || p.Region == selectedRegion)
-        .Where(p => Matches(p, search))
-        .ToList();
+    private string UrlFor(string region)
+    {
+        var parts = new List<string>();
+        if (region != AllAreas) parts.Add("region=" + Uri.EscapeDataString(region));
+        if (!string.IsNullOrWhiteSpace(Query)) parts.Add("q=" + Uri.EscapeDataString(Query.Trim()));
+        return parts.Count == 0 ? "/places" : "/places?" + string.Join("&", parts);
+    }
 
-    private static bool Matches(Place p, string term)
+    private static bool Matches(Place p, string? term)
     {
         if (string.IsNullOrWhiteSpace(term)) return true;
         term = term.Trim();
         return p.Name.Contains(term, StringComparison.OrdinalIgnoreCase)
             || p.Tagline.Contains(term, StringComparison.OrdinalIgnoreCase)
             || p.KnownFor.Any(k => k.Contains(term, StringComparison.OrdinalIgnoreCase));
-    }
-
-    private void Reset()
-    {
-        search = "";
-        selectedRegion = AllAreas;
     }
 }
