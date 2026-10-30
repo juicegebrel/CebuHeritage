@@ -15,10 +15,13 @@ public class Place
     public required string Kind { get; init; }          // "City" or "Municipality"
     public required string Region { get; init; }
     public required string Tagline { get; init; }
-    public required string Icon { get; init; }          // emoji
     public required string Gradient { get; init; }      // full Tailwind gradient classes, e.g. "from-orange-500 to-purple-700"
     public required string Overview { get; init; }
     public required string GettingThere { get; init; }
+
+    public string? ImageUrl { get; init; }      // e.g. "/images/cebu-city.jpg"
+    public string? ImageAlt { get; init; }      // optional description for screen readers
+    public string? ImageCredit { get; init; }   // optional photographer / licence line
 
     public string? FestivalName { get; init; }
     public string? FestivalNote { get; init; }

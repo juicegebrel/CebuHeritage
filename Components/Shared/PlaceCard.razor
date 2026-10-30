@@ -1,8 +1,13 @@
 <a href="/places/@Place.Slug"
    class="group flex h-full flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-ink/10 transition-shadow hover:shadow-xl">
-    <div class="flex h-36 items-end justify-between bg-gradient-to-br @Place.Gradient p-5">
-        <span class="text-5xl drop-shadow" aria-hidden="true">@Place.Icon</span>
-        <span class="chip">@Place.Kind</span>
+    <div class="relative flex h-44 items-end overflow-hidden bg-gradient-to-br @Place.Gradient p-5">
+        @if (Place.ImageUrl is not null)
+        {
+            <img src="@Place.ImageUrl" alt="@Alt" loading="lazy"
+                 class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+            <div class="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent" aria-hidden="true"></div>
+        }
+        <span class="chip relative">@Place.Kind</span>
     </div>
     <div class="flex flex-1 flex-col p-5">
         <h3 class="text-xl font-bold group-hover:text-sinulog">@Place.Name</h3>
@@ -20,4 +25,6 @@
 
 @code {
     [Parameter, EditorRequired] public Place Place { get; set; } = default!;
+
+    private string Alt => Place.ImageAlt ?? $"Photo of {Place.Name}";
 }
