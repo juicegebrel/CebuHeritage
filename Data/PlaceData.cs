@@ -19,7 +19,7 @@ public static class PlaceData
             Region = "Metro Cebu",
             Gradient = "from-orange-500 via-rose-600 to-purple-800",
             ImageUrl = "/images/cebu-city.jpg",
-            Tagline = "The Queen City of the South, where Spanish colonial history in the Philippines began. asdngjnasdjngljasndgjnasdjlng lasndglnasldgnakl sdngklansdklgnas lkdnglsndglknsdklg",
+            Tagline = "The Queen City of the South, where Spanish colonial history in the Philippines began.",
             Overview = "Cebu City is the oldest city in the Philippines and the capital of the province. Magellan's arrival, the first Spanish settlement and the enduring devotion to the Santo Niño all happened here, and you can still walk between the places where they took place. Today it is also a busy commercial centre, so old churches and forts sit a short ride from malls and business districts.",
             GettingThere = "Served by Mactan-Cebu International Airport (about 30–60 minutes by road, depending on traffic). Taxis, ride-hailing and jeepneys cover the city.",
             FestivalName = "Sinulog Festival",
