@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton<PlaceService>();
+builder.Services.AddScoped<PlaceService>();
 
 builder.Services.AddDbContextFactory<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Supabase")));
@@ -33,13 +33,13 @@ using (var db = dbFactory.CreateDbContext())
         // The places table already exists from an earlier run, which is fine.
     }
 
-    if (!db.Places.Any())
-    {
-        var seed = PlaceData.Build().ToList();
-        for (var i = 0; i < seed.Count; i++) seed[i].SortOrder = i;
-        db.Places.AddRange(seed);
-        db.SaveChanges();
-    }
+    // if (!db.Places.Any())
+    // {
+    //     var seed = PlaceData.Build().ToList();
+    //     for (var i = 0; i < seed.Count; i++) seed[i].SortOrder = i;
+    //     db.Places.AddRange(seed);
+    //     db.SaveChanges();
+    // }
 }
 
 if (!app.Environment.IsDevelopment())

@@ -4,24 +4,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CebuHeritage.Services;
 
+/// <summary>
+/// Registered as Scoped, so each page request gets a new instance and reads fresh data
+/// from Supabase. Within one request, the places are loaded only once.
+/// </summary>
 public class PlaceService(IDbContextFactory<AppDbContext> factory)
 {
-    private IReadOnlyList<Place> _places = Array.Empty<Place>();
-    private DateTime _loadedAt = DateTime.MinValue;
-    private readonly object _lock = new();
+    private IReadOnlyList<Place>? _places;
 
     private IReadOnlyList<Place> Load()
     {
-        lock (_lock)
+        if (_places is null)
         {
-            if (DateTime.UtcNow - _loadedAt > TimeSpan.FromMinutes(5))
-            {
-                using var db = factory.CreateDbContext();
-                _places = db.Places.AsNoTracking().OrderBy(p => p.SortOrder).ToList();
-                _loadedAt = DateTime.UtcNow;
-            }
-            return _places;
+            using var db = factory.CreateDbContext();
+            _places = db.Places.AsNoTracking().OrderBy(p => p.SortOrder).ToList();
         }
+        return _places;
     }
 
     public IReadOnlyList<Place> GetAll() => Load();
