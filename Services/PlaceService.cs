@@ -1,25 +1,42 @@
 using CebuHeritage.Data;
 using CebuHeritage.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CebuHeritage.Services;
 
-public class PlaceService
+public class PlaceService(IDbContextFactory<AppDbContext> factory)
 {
-    private readonly IReadOnlyList<Place> _places = PlaceData.Build();
+    private IReadOnlyList<Place> _places = Array.Empty<Place>();
+    private DateTime _loadedAt = DateTime.MinValue;
+    private readonly object _lock = new();
 
-    public IReadOnlyList<Place> GetAll() => _places;
+    private IReadOnlyList<Place> Load()
+    {
+        lock (_lock)
+        {
+            if (DateTime.UtcNow - _loadedAt > TimeSpan.FromMinutes(5))
+            {
+                using var db = factory.CreateDbContext();
+                _places = db.Places.AsNoTracking().OrderBy(p => p.SortOrder).ToList();
+                _loadedAt = DateTime.UtcNow;
+            }
+            return _places;
+        }
+    }
 
-    public IReadOnlyList<string> Regions =>
-        _places.Select(p => p.Region).Distinct().ToList();
+    public IReadOnlyList<Place> GetAll() => Load();
+
+    public IReadOnlyList<string> Regions => Load().Select(p => p.Region).Distinct().ToList();
 
     public Place? GetBySlug(string slug) =>
-        _places.FirstOrDefault(p => string.Equals(p.Slug, slug, StringComparison.OrdinalIgnoreCase));
+        Load().FirstOrDefault(p => string.Equals(p.Slug, slug, StringComparison.OrdinalIgnoreCase));
 
     public (Place? Previous, Place? Next) GetNeighbors(string slug)
     {
-        var index = _places.ToList().FindIndex(p => string.Equals(p.Slug, slug, StringComparison.OrdinalIgnoreCase));
+        var list = Load();
+        var index = list.ToList().FindIndex(p => string.Equals(p.Slug, slug, StringComparison.OrdinalIgnoreCase));
         if (index < 0) return (null, null);
-        return (index > 0 ? _places[index - 1] : null,
-                index < _places.Count - 1 ? _places[index + 1] : null);
+        return (index > 0 ? list[index - 1] : null,
+                index < list.Count - 1 ? list[index + 1] : null);
     }
 }

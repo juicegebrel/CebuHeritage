@@ -23,6 +23,8 @@ public class Place
     public string? ImageAlt { get; init; }      // optional description for screen readers
     public string? ImageCredit { get; init; }   // optional photographer / licence line
 
+    public int SortOrder { get; set; }
+    
     public string? FestivalName { get; init; }
     public string? FestivalNote { get; init; }
 
@@ -32,4 +34,5 @@ public class Place
     public List<Attraction> Attractions { get; init; } = new();
     public List<Stay> Stays { get; init; } = new();
     public string? StayNote { get; init; }
+
 }
